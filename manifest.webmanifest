@@ -1,0 +1,9 @@
+{
+  "name": "Primoria",
+  "short_name": "Primoria",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0d100e",
+  "theme_color": "#0d100e",
+  "description": "A free, public-domain, primary-source humanities academy."
+}

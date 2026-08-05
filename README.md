@@ -1,26 +1,20 @@
-# Primoria Volume Two
+# Primoria Premier Beta
 
-Upload-ready static website for GitHub Pages.
+GitHub Pages-ready static application.
 
-## Included
-- 43 guided lessons
-- Six schools
-- Search and filters
-- Reading paths
-- Bookmarks, XP, completion, and streaks
-- Mobile-friendly design
-- Separate `data/lessons.js` content database
-- Visible source-review warnings
+## What changed
+- 49 chronological lessons, with free exploration always available
+- Philosophy path extended through Montaigne, Spinoza, Hegel, Kierkegaard, Dostoevsky, and Nietzsche
+- Home, Journey, Quick Read, Library, Paths, and Bookmarks
+- Story, Reading, Study, and Scholar lesson modes
+- Adjustable text size, line spacing, reading width, and light/dark themes
+- Textual-evidence reveal after each quiz answer
+- Internal evidence fields and editorial-review metadata
+- Lawful full-text search links
+- No forced locks: chronology is recommended, not imposed
 
-## Add to your existing GitHub Pages site
-1. Download and extract the ZIP.
-2. Open the local folder connected to your Primoria repository.
-3. Replace the old `index.html`.
-4. Copy `styles.css` and `app.js` into the repository root.
-5. Copy the entire `data` folder into the repository root.
-6. In GitHub Desktop, commit with: `Add Primoria Volume Two`.
-7. Click **Push origin**.
-8. Wait one or two minutes and refresh the public site.
+## Publish
+Copy all files and the `data` folder into the root of the GitHub repository. Commit and push.
 
-## Copyright and editorial warning
-This build uses short demonstration wording and is not a final critical edition. Before broad public release, select and document a verified public-domain or licensed edition for each work. Add exact book, chapter, section, line, clause, or article references, plus translator, publisher, year, and source link.
+## Editorial warning
+The interface and questions are ready for testing, but lessons marked `textVerified: false` must not be represented as verified critical editions. Before public release, select a specific public-domain translation, replace the demonstration wording with exact text, and add exact citations.
