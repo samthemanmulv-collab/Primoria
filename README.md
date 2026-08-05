@@ -22,3 +22,9 @@ The beta profile is stored only in browser local storage. It does not transmit a
 
 ## Editorial status
 Interface functionality is ready for testing. Passages still marked pending require exact public-domain edition verification before being described as verified.
+
+## Stable patch 4.0.1
+- Corrected the startup syntax error in `app.js`.
+- Added defensive local-storage restoration.
+- Bumped the service-worker cache.
+- Added cache-busting file versions for GitHub Pages.

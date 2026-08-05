@@ -14,7 +14,19 @@ const DEFAULTS={
  reduceMotion:false,profile:{name:"",goal:"Explore",dailyMinutes:5,interests:[],startMode:"Chronological"}
 };
 let state={...DEFAULTS};
-try{state={...state,...JSON.parse(localStorage.getItem(KEY)||"{}"),profile:{...DEFAULTS.profile,...(JSON.parse(localStorage.getItem(KEY)||"{}").profile)}}catch{}
+try {
+  const stored = JSON.parse(localStorage.getItem(KEY) || "{}");
+  state = {
+    ...state,
+    ...stored,
+    profile: {
+      ...DEFAULTS.profile,
+      ...(stored.profile || {})
+    }
+  };
+} catch (error) {
+  console.warn("Primoria could not restore saved local data.", error);
+}
 const today=new Date().toISOString().slice(0,10),yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);
 if(state.lastVisit!==today){state.streak=state.lastVisit===yesterday?(state.streak||0)+1:1;state.lastVisit=today;save()}
 const $=s=>document.querySelector(s);
