@@ -1,0 +1,12 @@
+# Editorial checklist
+- [ ] Work and author verified
+- [ ] Edition or translation identified
+- [ ] Copyright or license status verified
+- [ ] Exact location citation added
+- [ ] Excerpt checked word-for-word
+- [ ] Context independently written
+- [ ] Source text distinguished from interpretation
+- [ ] Vocabulary checked
+- [ ] Quiz answer and distractors checked
+- [ ] Subject-matter review completed
+- [ ] Publication approval recorded
