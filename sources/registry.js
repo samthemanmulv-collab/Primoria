@@ -1,0 +1,73 @@
+window.PRIMORIA_SOURCE_REGISTRY = [
+  {
+    "id": "gutenberg-10657-macdevitt",
+    "title": "\"De Bello Gallico\" and Other Commentaries",
+    "author": "Julius Caesar",
+    "translator": "W. A. McDevitte",
+    "edition": "Bohn's Library translation, 1848; Everyman's Library edition first published 1915",
+    "provider": "Project Gutenberg",
+    "ebookNumber": "10657",
+    "sourceUrl": "https://www.gutenberg.org/ebooks/10657",
+    "plainTextUrl": "https://www.gutenberg.org/ebooks/10657.txt.utf-8",
+    "providerLicenseUrl": "https://www.gutenberg.org/policy/license.html",
+    "status": "Public domain in the USA",
+    "reusePolicy": "Bundled excerpts are taken from a U.S. public-domain translation. Preserve source attribution and the provider link. Do not imply Project Gutenberg endorsement or use its trademark as part of the app brand.",
+    "territoryNote": "Users and publishers outside the United States should verify local copyright law."
+  },
+  {
+    "id": "gutenberg-1656-jowett",
+    "title": "Apology",
+    "author": "Plato",
+    "translator": "Benjamin Jowett",
+    "edition": "Project Gutenberg eBook #1656",
+    "provider": "Project Gutenberg",
+    "ebookNumber": "1656",
+    "sourceUrl": "https://www.gutenberg.org/ebooks/1656",
+    "providerLicenseUrl": "https://www.gutenberg.org/policy/license.html",
+    "status": "Public domain in the USA",
+    "reusePolicy": "Bundled passages use the identified U.S. public-domain Jowett translation. Preserve attribution and do not imply provider endorsement.",
+    "territoryNote": "Verify local copyright law outside the United States."
+  },
+  {
+    "id": "gutenberg-8438-aristotle",
+    "title": "The Nicomachean Ethics of Aristotle",
+    "author": "Aristotle",
+    "translator": "Not identified in the Project Gutenberg header",
+    "edition": "Project Gutenberg eBook #8438",
+    "provider": "Project Gutenberg",
+    "ebookNumber": "8438",
+    "sourceUrl": "https://www.gutenberg.org/ebooks/8438",
+    "providerLicenseUrl": "https://www.gutenberg.org/policy/license.html",
+    "status": "Public domain in the USA",
+    "reusePolicy": "Use is limited to this exact edition. Translator attribution remains an open bibliographic item and is labeled rather than guessed.",
+    "territoryNote": "Verify local copyright law outside the United States."
+  },
+  {
+    "id": "gutenberg-3296-pusey",
+    "title": "The Confessions of St. Augustine",
+    "author": "Augustine of Hippo",
+    "translator": "E. B. Pusey",
+    "edition": "Project Gutenberg eBook #3296",
+    "provider": "Project Gutenberg",
+    "ebookNumber": "3296",
+    "sourceUrl": "https://www.gutenberg.org/ebooks/3296",
+    "providerLicenseUrl": "https://www.gutenberg.org/policy/license.html",
+    "status": "Public domain in the USA",
+    "reusePolicy": "Bundled passages use the identified U.S. public-domain Pusey translation. Preserve attribution.",
+    "territoryNote": "Verify local copyright law outside the United States."
+  },
+  {
+    "id": "gutenberg-57037-ricci",
+    "title": "The Prince",
+    "author": "Niccolò Machiavelli",
+    "translator": "Luigi Ricci",
+    "edition": "Oxford University Press 1909; Project Gutenberg eBook #57037",
+    "provider": "Project Gutenberg",
+    "ebookNumber": "57037",
+    "sourceUrl": "https://www.gutenberg.org/ebooks/57037",
+    "providerLicenseUrl": "https://www.gutenberg.org/policy/license.html",
+    "status": "Public domain in the USA",
+    "reusePolicy": "Bundled passages use the identified U.S. public-domain Ricci translation. Preserve attribution.",
+    "territoryNote": "Verify local copyright law outside the United States."
+  }
+];
