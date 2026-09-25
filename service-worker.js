@@ -1,5 +1,5 @@
-const CACHE="primoria-v7";
-const FILES=["./","./index.html","./styles.css?v=7.0.0","./app.js?v=7.0.0","./manifest.webmanifest","./sources/registry.js?v=7.0.0","./courses/caesar-gallic-war.js?v=7.0.0","./courses/model-courses.js?v=7.0.0","./data/authors.js?v=7.0.0","./content/western-history.js?v=4.0.1","./content/classics.js?v=4.0.1","./content/philosophy.js?v=4.0.1","./content/theology.js?v=4.0.1","./content/law.js?v=4.0.1","./content/political-thought.js?v=4.0.1"];
-self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)))});
+const CACHE="primoria-v7.1";
+const FILES=["./","./index.html","./styles.css?v=7.1.0","./app.js?v=7.1.0","./manifest.webmanifest","./sources/registry.js?v=7.1.0","./courses/caesar-gallic-war.js?v=7.1.0","./courses/model-courses.js?v=7.1.0","./data/authors.js?v=7.1.0","./content/western-history.js?v=4.0.1","./content/classics.js?v=4.0.1","./content/philosophy.js?v=4.0.1","./content/theology.js?v=4.0.1","./content/law.js?v=4.0.1","./content/political-thought.js?v=4.0.1"];
+self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>Promise.allSettled(FILES.map(f=>c.add(f))))) });
 self.addEventListener("activate",e=>{e.waitUntil(Promise.all([self.clients.claim(),caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))]))});
 self.addEventListener("fetch",e=>{if(new URL(e.request.url).origin!==location.origin)return;e.respondWith(fetch(e.request).then(r=>{const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));return r}).catch(()=>caches.match(e.request)))})
