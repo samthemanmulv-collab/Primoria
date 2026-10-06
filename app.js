@@ -8,6 +8,7 @@ const COURSES=[...(window.PRIMORIA_COURSES||[]),...(window.PRIMORIA_ADDITIONAL_C
 const COURSE_LESSONS=[...(window.PRIMORIA_COURSE_LESSONS||[]),...(window.PRIMORIA_ADDITIONAL_COURSE_LESSONS||[])];
 const SOURCES=window.PRIMORIA_SOURCE_REGISTRY||[];
 const AUTHORS=window.PRIMORIA_AUTHORS||[];
+const IDEAS=window.PRIMORIA_IDEAS||[];
 const SCHOOLS=["Western History","Classics","Philosophy","Theology","Law","Political Thought"];
 const KEY="primoria.v7",LEGACY_KEY="primoria.v6";
 const DEFAULTS={
@@ -15,13 +16,13 @@ const DEFAULTS={
  completed:[],courseCompleted:[],courseAnswers:{},bookmarks:[],xp:0,streak:1,lastVisit:null,
  query:"",librarySchool:"All",librarySort:"Chronological",fontSize:20,lineHeight:1.75,
  readerWidth:780,theme:"dark",readerMode:"guided",onboarded:true,
- profile:{name:"",dailyMinutes:5,interests:[],startMode:"Chronological"},journal:{}
+ profile:{name:"",dailyMinutes:5,interests:[],startMode:"Chronological"},journal:{},highlights:{},passageNotes:{},savedPassages:[],selectedIdea:null
 };
 let state={...DEFAULTS};
 try{
  const fresh=localStorage.getItem(KEY),legacy=localStorage.getItem(LEGACY_KEY);
  const stored=JSON.parse(fresh||legacy||"{}");
- state={...state,...stored,profile:{...DEFAULTS.profile,...(stored.profile||{})},journal:stored.journal||{},courseAnswers:stored.courseAnswers||{}};
+ state={...state,...stored,profile:{...DEFAULTS.profile,...(stored.profile||{})},journal:stored.journal||{},courseAnswers:stored.courseAnswers||{},highlights:stored.highlights||{},passageNotes:stored.passageNotes||{},savedPassages:stored.savedPassages||[]};
  if(state.readerMode==="study")state.readerMode="guided";
  if(state.readerMode==="reading")state.readerMode="reader";
  if(state.readerMode==="scholar")state.readerMode="seminar";
@@ -33,7 +34,7 @@ if(state.lastVisit!==today){state.streak=state.lastVisit===yesterday?(state.stre
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){console.warn("Could not save Primoria data.",e)}chrome()}
 function chrome(){
  if($("#xp"))$("#xp").textContent=state.xp;if($("#done"))$("#done").textContent=state.completed.length+state.courseCompleted.length;
- if($("#marks"))$("#marks").textContent=state.bookmarks.length;if($("#streak"))$("#streak").textContent=state.streak;
+ if($("#marks"))$("#marks").textContent=state.bookmarks.length+state.savedPassages.length;if($("#streak"))$("#streak").textContent=state.streak;
  document.documentElement.dataset.theme=state.theme;
  document.documentElement.style.setProperty("--reader-size",state.fontSize+"px");
  document.documentElement.style.setProperty("--reader-leading",state.lineHeight);
@@ -51,7 +52,7 @@ function openCourse(id){route("Course",{course:id})}
 function openCourseLesson(id){route("Course Lesson",{courseLesson:id})}
 function openAuthor(id){route("Author",{author:id})}
 function nav(){
- const items=["Home","Library","Authors","Courses","Journey","Quick Read","Sources","Journal","Profile",...SCHOOLS];
+ const items=["Home","Library","Authors","Courses","Ideas","Notebook","Journey","Quick Read","Sources","Profile",...SCHOOLS];
  $("#nav").innerHTML=items.map(x=>`<button class="${state.tab===x?"active":""}" onclick="go('${x}')">${x}</button>`).join("")
 }
 function sourceForCourse(c){return SOURCES.find(s=>s.id===c?.sourceId)}
@@ -92,9 +93,9 @@ function home(){
   return `<section class="hero"><div class="eyebrow">Primoria · Platform V7.1</div><h2>Course data did not load.</h2><p>The application shell is working, but the course data files were not available. Re-upload the full V7.1 package and redeploy GitHub Pages.</p><div class="actions"><button class="btn" onclick="location.reload()">Reload</button></div></section>`;
  }
  const c=COURSES.find(x=>courseProgress(x).done<courseProgress(x).total)||COURSES[0],p=courseProgress(c);
- return `<section class="hero"><div class="eyebrow">Primoria · Platform V7</div><h2>A library for reading the originals.</h2><p>V7 puts provenance, authors, and the reading experience at the center. Every verified course now carries its edition with it, and every reading can move between Guided, Reader, and Seminar modes without losing your place.</p><div class="actions"><button class="btn primary" onclick="openCourse('${c.id}')">${p.done?"Continue":"Begin"} ${esc(c.title)}</button><button class="btn" onclick="go('Library')">Enter the Library</button><button class="btn" onclick="go('Authors')">Meet the authors</button></div></section>
+ return `<section class="hero"><div class="eyebrow">Primoria · Platform V7.2</div><h2>A library for reading the originals.</h2><p>V7 puts provenance, authors, and the reading experience at the center. Every verified course now carries its edition with it, and every reading can move between Guided, Reader, and Seminar modes without losing your place.</p><div class="actions"><button class="btn primary" onclick="openCourse('${c.id}')">${p.done?"Continue":"Begin"} ${esc(c.title)}</button><button class="btn" onclick="go('Library')">Enter the Library</button><button class="btn" onclick="go('Authors')">Meet the authors</button></div></section>
  <section class="dashboard-grid"><article class="panel feature-panel"><div class="eyebrow">Current work</div><h3>${esc(c.author)} — ${esc(c.title)}</h3><p>${esc(c.description)}</p><div class="progress"><span style="width:${p.pct}%"></span></div><p class="muted-line">${p.done}/${p.total} readings complete</p><button class="btn primary" onclick="openCourse('${c.id}')">Continue course</button></article>
- <article class="panel"><div class="eyebrow">V7 standard</div><h3>Every passage has a trail back to its edition.</h3><p>Project Gutenberg provenance is visible in the Library, on the work page, and inside the reading interface.</p><button class="btn" onclick="go('Sources')">Browse source records</button></article></section>
+ <article class="panel"><div class="eyebrow">V7.2 study layer</div><h3>Your reading can now become a notebook.</h3><p>Highlight exact selections, attach notes to paragraphs, save passages, and follow recurring ideas across works.</p><div class="actions"><button class="btn" onclick="go('Notebook')">Open Notebook</button><button class="btn" onclick="go('Ideas')">Explore Ideas</button></div></article></section>
  <h2 class="section-title">Verified courses</h2><section class="course-grid">${COURSES.map(courseCard).join("")}</section>`
 }
 function coursesPage(){return `<section class="hero compact"><div class="eyebrow">Sustained reading</div><h2>Works become courses.</h2><p>Each course is built around a specific edition, substantial primary text, close reading, and private reflection.</p></section><section class="course-grid top-gap">${COURSES.map(courseCard).join("")}</section>`}
@@ -102,6 +103,7 @@ function coursePage(c){
  const p=courseProgress(c),src=sourceForCourse(c),a=authorForName(c.author);
  return `<section class="work-hero"><div><div class="eyebrow">${esc(c.school)} · ${esc(c.civilization)}</div><h1>${esc(c.title)}</h1><p class="work-sub">${esc(c.subtitle)}</p><p class="work-author">by ${a?`<button class="author-link large" onclick="openAuthor('${a.id}')">${esc(c.author)}</button>`:esc(c.author)}</p><p>${esc(c.description)}</p><div class="badges"><span class="badge">${p.done}/${p.total} readings</span><span class="badge">${c.estimatedWeeks} week roadmap</span><span class="badge verified">${esc(src?.status||"Source review")}</span></div></div><div class="work-seal">${initials(c.author)}</div></section>
  ${sourceRecord(src)}
+ ${ideasForCourse(c.id).length?`<section class="course-ideas"><div class="eyebrow">Recurring ideas</div><h2>Connections across the library</h2><div class="connection-row">${ideasForCourse(c.id).map(i=>`<button class="connection-chip" onclick="state.selectedIdea='${i.id}';persist();go('Ideas')">${esc(i.title)}</button>`).join("")}</div></section>`:""}
  <h2 class="section-title">Books and daily readings</h2>${c.books.map(b=>{
   const items=b.lessonIds.map(id=>COURSE_LESSONS.find(x=>x.id===id)).filter(Boolean);
   return `<section class="book-panel"><header><div><div class="eyebrow">${b.number?`Book ${b.number}`:"Course section"}</div><h2>${esc(b.title)}</h2><p>${esc(b.description)}</p></div><span class="book-count">${items.length?items.length+" days":"Planned"}</span></header>${items.length?`<div class="day-list">${items.map(l=>`<button class="${state.courseCompleted.includes(l.id)?"done":""}" onclick="openCourseLesson('${l.id}')"><span>Day ${l.day}</span><div><strong>${esc(l.title)}</strong><small>${esc(l.sectionLabel)} · ${l.estimatedMinutes} min${state.bookmarks.includes(l.id)?" · ★ Saved":""}</small></div></button>`).join("")}</div>`:'<div class="empty">Editorial planning stage. No passage is published until the edition and questions are verified.</div>'}</section>`
@@ -114,11 +116,77 @@ function readerControls(){
   ["reader","Reader","Primary text with minimal interface"],
   ["seminar","Seminar","Full notes, provenance, and discussion prompts"]
  ];
- return `<aside class="reader-tools v7-tools"><div class="mode-switch" role="group" aria-label="Reading mode">${modes.map(([id,label,desc])=>`<button class="mode-button ${state.readerMode===id?"selected":""}" onclick="setReaderMode('${id}')"><strong>${label}</strong><small>${desc}</small></button>`).join("")}</div><div class="reader-sliders"><label>Text <input type="range" min="17" max="34" value="${state.fontSize}" oninput="state.fontSize=+this.value;persist()"></label><label>Spacing <input type="range" min="1.4" max="2.3" step=".1" value="${state.lineHeight}" oninput="state.lineHeight=+this.value;persist()"></label><label>Width <input type="range" min="560" max="1000" step="20" value="${state.readerWidth}" oninput="state.readerWidth=+this.value;persist()"></label><label>Theme <select onchange="state.theme=this.value;persist()"><option value="dark" ${state.theme==="dark"?"selected":""}>Dark</option><option value="light" ${state.theme==="light"?"selected":""}>Light</option><option value="sepia" ${state.theme==="sepia"?"selected":""}>Sepia</option></select></label></div></aside>`
+ return `<aside class="reader-tools v7-tools"><div class="mode-switch" role="group" aria-label="Reading mode">${modes.map(([id,label,desc])=>`<button class="mode-button ${state.readerMode===id?"selected":""}" onclick="setReaderMode('${id}')"><strong>${label}</strong><small>${desc}</small></button>`).join("")}</div><div class="reader-sliders"><label>Text <input type="range" min="17" max="34" value="${state.fontSize}" oninput="state.fontSize=+this.value;persist()"></label><label>Spacing <input type="range" min="1.4" max="2.3" step=".1" value="${state.lineHeight}" oninput="state.lineHeight=+this.value;persist()"></label><label>Width <input type="range" min="560" max="1000" step="20" value="${state.readerWidth}" oninput="state.readerWidth=+this.value;persist()"></label><label>Theme <select onchange="state.theme=this.value;persist()"><option value="dark" ${state.theme==="dark"?"selected":""}>Dark</option><option value="light" ${state.theme==="light"?"selected":""}>Light</option><option value="sepia" ${state.theme==="sepia"?"selected":""}>Sepia</option></select></label></div><div class="study-tools"><button class="btn study-action" onclick="highlightSelection(state.courseLesson)">Highlight selection</button><button class="btn" onclick="go('Notebook')">Notebook</button><small>Select text inside a single paragraph, then choose Highlight selection.</small></div></aside>`
 }
 function toggleBookmark(id){
  state.bookmarks=state.bookmarks.includes(id)?state.bookmarks.filter(x=>x!==id):[...state.bookmarks,id];persist();render()
 }
+
+function passageKey(id,idx){return `${id}:${idx}`}
+function getHighlights(id,idx){return state.highlights[passageKey(id,idx)]||[]}
+function renderMarkedText(text,quotes){
+ if(!quotes?.length)return esc(text);
+ const hits=[];
+ quotes.filter(Boolean).sort((a,b)=>b.length-a.length).forEach(q=>{
+  let start=0,pos;
+  while((pos=text.indexOf(q,start))!==-1){
+   const end=pos+q.length;
+   if(!hits.some(h=>pos<h.end&&end>h.start))hits.push({start:pos,end,quote:q});
+   start=end
+  }
+ });
+ hits.sort((a,b)=>a.start-b.start);
+ if(!hits.length)return esc(text);
+ let out="",cursor=0;
+ hits.forEach(h=>{out+=esc(text.slice(cursor,h.start))+`<mark class="primoria-highlight">${esc(text.slice(h.start,h.end))}</mark>`;cursor=h.end});
+ return out+esc(text.slice(cursor))
+}
+function highlightSelection(id){
+ const sel=window.getSelection();
+ const quote=(sel?.toString()||"").trim();
+ if(!quote){alert("Select a sentence or phrase in the primary text first.");return}
+ const range=sel.rangeCount?sel.getRangeAt(0):null;
+ let node=range?.commonAncestorContainer;
+ if(node?.nodeType===3)node=node.parentElement;
+ const para=node?.closest?.("[data-pidx]");
+ if(!para||!para.closest(".primary-text")){alert("Keep the highlight inside one primary-text paragraph.");return}
+ const idx=+para.dataset.pidx,key=passageKey(id,idx);
+ const list=state.highlights[key]||[];
+ if(!list.includes(quote))state.highlights[key]=[...list,quote];
+ persist();sel.removeAllRanges();render()
+}
+function clearParagraphHighlights(id,idx){
+ delete state.highlights[passageKey(id,idx)];persist();render()
+}
+function editPassageNote(id,idx){
+ const key=passageKey(id,idx),existing=state.passageNotes[key]||"";
+ const value=prompt("Note for this paragraph:",existing);
+ if(value===null)return;
+ if(value.trim())state.passageNotes[key]=value.trim();else delete state.passageNotes[key];
+ persist();render()
+}
+function toggleSavedPassage(id,idx){
+ const key=passageKey(id,idx);
+ state.savedPassages=state.savedPassages.includes(key)?state.savedPassages.filter(x=>x!==key):[...state.savedPassages,key];
+ persist();render()
+}
+function openSavedPassage(id,idx){
+ openCourseLesson(id);
+ setTimeout(()=>document.querySelector(`[data-pidx="${idx}"]`)?.scrollIntoView({behavior:"smooth",block:"center"}),80)
+}
+function passageParagraph(id,text,idx){
+ const key=passageKey(id,idx),saved=state.savedPassages.includes(key),note=state.passageNotes[key],quotes=getHighlights(id,idx);
+ return `<div class="annotatable-paragraph ${saved?"saved-passage":""}" data-pidx="${idx}">
+   <p data-paragraph="${idx+1}" data-pidx="${idx}">${renderMarkedText(text,quotes)}</p>
+   <div class="paragraph-tools">
+    <button onclick="toggleSavedPassage('${id}',${idx})">${saved?"★ Saved passage":"☆ Save passage"}</button>
+    <button onclick="editPassageNote('${id}',${idx})">${note?"✎ Edit note":"+ Note"}</button>
+    ${quotes.length?`<button onclick="clearParagraphHighlights('${id}',${idx})">Clear ${quotes.length} highlight${quotes.length===1?"":"s"}</button>`:""}
+   </div>
+   ${note?`<aside class="margin-note"><strong>Your note</strong><p>${esc(note)}</p></aside>`:""}
+  </div>`
+}
+function ideasForCourse(courseId){return IDEAS.filter(i=>i.courses.some(c=>c.courseId===courseId))}
 function completeReading(id){if(!state.courseCompleted.includes(id)){state.courseCompleted.push(id);state.xp+=40;persist()}render()}
 function courseLessonPage(l){
  if(!l)return `<div class="empty">This reading could not be found.</div>`;
@@ -128,9 +196,10 @@ function courseLessonPage(l){
  <div class="meta"><span>Day ${l.day}</span><span>${esc(l.sectionLabel)}</span><span>${l.estimatedMinutes} min</span><span>${state.readerMode[0].toUpperCase()+state.readerMode.slice(1)} mode</span></div>
  <h1>${esc(l.title)}</h1><p class="byline"><strong>${esc(c.author)}</strong> · <em>${esc(c.title)}</em></p>
  <div class="reader-source-strip"><div><strong>${esc(src?.provider||"Source")} ${src?.ebookNumber?`#${esc(src.ebookNumber)}`:""}</strong><small>${esc(src?.translator||"")} · ${esc(src?.edition||"")}</small></div>${src?`<a target="_blank" rel="noopener" href="${src.sourceUrl}">Original edition ↗</a>`:""}</div>
+ ${ideasForCourse(c.id).length?`<div class="reading-idea-strip"><span>Ideas in this work</span>${ideasForCourse(c.id).slice(0,4).map(i=>`<button onclick="state.selectedIdea='${i.id}';persist();go('Ideas')">${esc(i.title)}</button>`).join("")}</div>`:""}
  ${guided||seminar?`<section class="orientation"><h2>Orientation</h2><p>${esc(l.orientation)}</p></section>`:""}
  ${seminar?`<section class="seminar-note"><div class="eyebrow">Seminar lens</div><p>${esc(l.comparison)}</p></section>`:""}
- <section class="primary-text substantial"><div class="reading-heading"><h2>Primary-source reading</h2>${done?'<span class="badge done-on-paper">✓ Complete</span>':''}</div>${l.passage.split("\n\n").map((p,i)=>`<p data-paragraph="${i+1}">${esc(p)}</p>`).join("")}</section>
+ <section class="primary-text substantial"><div class="reading-heading"><h2>Primary-source reading</h2>${done?'<span class="badge done-on-paper">✓ Complete</span>':''}</div>${l.passage.split("\n\n").map((p,i)=>passageParagraph(l.id,p,i)).join("")}</section>
  ${guided||seminar?`<section><h2>Vocabulary</h2><div class="vocab">${l.vocabulary.map(v=>`<div><strong>${esc(v[0])}</strong><br>${esc(v[1])}</div>`).join("")}</div></section>`:""}
  ${guided||seminar?`<section class="quiz"><h2>Close reading</h2><p class="quiz-intro">Answer from the passage above. Primoria stores the textual evidence with each question.</p>${l.questions.map((q,i)=>`<div class="question" id="cq${i}"><p><strong>${esc(q.prompt)}</strong></p>${q.choices.map((ch,j)=>`<button class="option" onclick="answerCourse('${l.id}',${i},${j},this)">${esc(ch)}</button>`).join("")}<div class="feedback"></div></div>`).join("")}</section>`:""}
  ${guided||seminar?`<section class="compare-panel"><h2>${seminar?"Seminar discussion":"Across time and space"}</h2><p>${esc(l.comparison)}</p></section>`:""}
@@ -192,14 +261,28 @@ function quickRead(){
  const all=COURSE_LESSONS, l=all.find(x=>!state.courseCompleted.includes(x.id))||all[0];
  return `<section class="hero compact"><div class="eyebrow">Five-minute alternative</div><h2>Open one real text instead.</h2><p>The goal is not to finish a book in five minutes. It is to make returning to primary sources easy enough to become habitual.</p></section><article class="quick-card"><div class="eyebrow">${esc(l.sectionLabel)}</div><h2>${esc(l.title)}</h2><p>${esc(l.orientation)}</p><blockquote>${esc(l.passage.slice(0,700))}…</blockquote><button class="btn primary" onclick="openCourseLesson('${l.id}')">Continue reading</button></article>`
 }
-function journalPage(){
- const entries=Object.entries(state.journal).filter(([,v])=>v.trim());
- return `<section class="hero compact"><div class="eyebrow">Private notebook</div><h2>Your reflections</h2><p>These entries remain in this browser and are not sent to a server.</p></section><section class="journal-list top-gap">${entries.length?entries.map(([id,text])=>{const l=COURSE_LESSONS.find(x=>x.id===id);return `<article class="panel"><div class="eyebrow">${esc(l?.sectionLabel||id)}</div><h3>${esc(l?.title||id)}</h3><p>${esc(text)}</p><button class="text-link" onclick="openCourseLesson('${id}')">Return to reading →</button></article>`}).join(""):'<div class="empty">No saved reflections yet.</div>'}</section>`
+function notebookPage(){
+ const saved=state.savedPassages.map(key=>{const [id,idxRaw]=key.split(":");const l=COURSE_LESSONS.find(x=>x.id===id);const idx=+idxRaw;const text=l?.passage.split("\n\n")[idx];return l&&text?{id,idx,l,text}:null}).filter(Boolean);
+ const notes=Object.entries(state.passageNotes).filter(([,v])=>v.trim()).map(([key,note])=>{const [id,idxRaw]=key.split(":");const l=COURSE_LESSONS.find(x=>x.id===id);return l?{id,idx:+idxRaw,l,note}:null}).filter(Boolean);
+ const reflections=Object.entries(state.journal).filter(([,v])=>v.trim());
+ const highlightCount=Object.values(state.highlights).reduce((n,a)=>n+(a?.length||0),0);
+ return `<section class="hero compact"><div class="eyebrow">Private study notebook</div><h2>Your reading, collected.</h2><p>Highlights, passage notes, saved passages, and reflections remain in this browser. They are not uploaded to Primoria.</p><div class="notebook-stats"><span><strong>${highlightCount}</strong> highlights</span><span><strong>${notes.length}</strong> passage notes</span><span><strong>${saved.length}</strong> saved passages</span><span><strong>${reflections.length}</strong> reflections</span></div></section>
+ <section class="notebook-section"><div class="shelf-heading"><div><div class="eyebrow">Saved passages</div><h2>${saved.length}</h2></div></div>${saved.length?`<div class="notebook-grid">${saved.map(x=>`<article class="notebook-card"><div class="eyebrow">${esc(x.l.sectionLabel)} · ¶ ${x.idx+1}</div><h3>${esc(x.l.title)}</h3><blockquote>${esc(x.text.length>520?x.text.slice(0,520)+"…":x.text)}</blockquote><div class="actions"><button class="btn" onclick="openSavedPassage('${x.id}',${x.idx})">Return to passage</button><button class="text-link" onclick="toggleSavedPassage('${x.id}',${x.idx})">Remove</button></div></article>`).join("")}</div>`:'<div class="empty">Save a paragraph from any verified reading and it will appear here.</div>'}</section>
+ <section class="notebook-section"><div class="shelf-heading"><div><div class="eyebrow">Passage notes</div><h2>${notes.length}</h2></div></div>${notes.length?`<div class="notebook-grid">${notes.map(x=>`<article class="notebook-card note-card"><div class="eyebrow">${esc(x.l.sectionLabel)} · ¶ ${x.idx+1}</div><h3>${esc(x.l.title)}</h3><p>${esc(x.note)}</p><button class="btn" onclick="openSavedPassage('${x.id}',${x.idx})">Return to paragraph</button></article>`).join("")}</div>`:'<div class="empty">Attach a note to a paragraph while reading and it will appear here.</div>'}</section>
+ <section class="notebook-section"><div class="shelf-heading"><div><div class="eyebrow">Private reflections</div><h2>${reflections.length}</h2></div></div>${reflections.length?`<div class="notebook-grid">${reflections.map(([id,text])=>{const l=COURSE_LESSONS.find(x=>x.id===id);return `<article class="notebook-card"><div class="eyebrow">${esc(l?.sectionLabel||id)}</div><h3>${esc(l?.title||id)}</h3><p>${esc(text)}</p><button class="btn" onclick="openCourseLesson('${id}')">Return to reading</button></article>`}).join("")}</div>`:'<div class="empty">No saved reflections yet.</div>'}</section>`
+}
+function journalPage(){return notebookPage()}
+function selectIdea(id){state.selectedIdea=id;persist();render()}
+function ideasPage(){
+ const selected=IDEAS.find(i=>i.id===state.selectedIdea)||IDEAS[0];
+ return `<section class="idea-hero"><div><div class="eyebrow">Idea connections</div><h1>The conversation across centuries.</h1><p>Connections are editorial guides for comparison. They do not claim that different authors mean the same thing by a shared word or question.</p></div><div class="idea-count"><strong>${IDEAS.length}</strong><span>connection maps</span></div></section>
+ <section class="ideas-layout"><aside class="idea-index">${IDEAS.map(i=>`<button class="${selected?.id===i.id?"active":""}" onclick="selectIdea('${i.id}')"><strong>${esc(i.title)}</strong><small>${esc(i.question)}</small></button>`).join("")}</aside>
+ <article class="idea-detail">${selected?`<div class="eyebrow">Comparative question</div><h2>${esc(selected.title)}</h2><p class="idea-question">${esc(selected.question)}</p><p>${esc(selected.description)}</p><div class="idea-course-chain">${selected.courses.map((link,n)=>{const c=COURSES.find(x=>x.id===link.courseId);return c?`<div class="idea-course-node"><span>${n+1}</span><div><button class="author-link large" onclick="openCourse('${c.id}')">${esc(c.author)} — ${esc(c.title)}</button><p>${esc(link.note)}</p><div class="badges">${(c.themes||[]).slice(0,4).map(t=>`<span class="badge">${esc(t)}</span>`).join("")}</div></div></div>`:""}).join("")}</div>`:"<div class='empty'>No idea selected.</div>"}</article></section>`
 }
 function legacyLesson(l){return `<div class="reader-shell"><div class="backbar"><button class="btn" onclick="go('${l.school}')">← Back</button></div>${readerControls()}<article class="reader"><h1>${esc(l.title)}</h1><p>${esc(l.context)}</p><section class="primary-text"><blockquote>${esc(l.excerpt)}</blockquote></section><p class="fine-print">Exploratory module; exact edition verification may still be pending.</p></article></div>`}
 function profile(){
  const pct=COURSE_LESSONS.length?Math.round(state.courseCompleted.length/COURSE_LESSONS.length*100):0;
- return `<section class="hero compact"><div class="eyebrow">Your academy</div><h2>${state.courseCompleted.length} verified readings completed</h2><p>${state.xp} XP · ${state.streak}-day return streak · ${Object.keys(state.journal).length} journal entries · ${state.bookmarks.length} saved readings</p></section><section class="profile-grid"><article class="panel"><div class="eyebrow">Verified curriculum</div><div class="profile-number">${pct}%</div><p>${state.courseCompleted.length} of ${COURSE_LESSONS.length} current model-course readings completed.</p></article><article class="panel"><div class="eyebrow">Reading setup</div><h3>${state.readerMode[0].toUpperCase()+state.readerMode.slice(1)} mode</h3><p>${state.fontSize}px text · ${state.lineHeight} line spacing · ${state.theme} theme</p><button class="btn" onclick="openCourseLesson('${COURSE_LESSONS[0]?.id||""}')">Open reader settings</button></article></section>`
+ return `<section class="hero compact"><div class="eyebrow">Your academy</div><h2>${state.courseCompleted.length} verified readings completed</h2><p>${state.xp} XP · ${state.streak}-day return streak · ${Object.keys(state.journal).length} reflections · ${Object.keys(state.passageNotes).length} notes · ${state.bookmarks.length+state.savedPassages.length} saved items</p></section><section class="profile-grid"><article class="panel"><div class="eyebrow">Verified curriculum</div><div class="profile-number">${pct}%</div><p>${state.courseCompleted.length} of ${COURSE_LESSONS.length} current model-course readings completed.</p></article><article class="panel"><div class="eyebrow">Reading setup</div><h3>${state.readerMode[0].toUpperCase()+state.readerMode.slice(1)} mode</h3><p>${state.fontSize}px text · ${state.lineHeight} line spacing · ${state.theme} theme</p><button class="btn" onclick="openCourseLesson('${COURSE_LESSONS[0]?.id||""}')">Open reader settings</button></article></section>`
 }
 function render(){
  nav();chrome();const main=$("#main");
@@ -207,7 +290,7 @@ function render(){
  if(state.course){main.innerHTML=coursePage(COURSES.find(x=>x.id===state.course));return}
  if(state.lesson){main.innerHTML=legacyLesson(LESSONS.find(x=>x.id===state.lesson));return}
  if(state.author){main.innerHTML=authorPage(AUTHORS.find(x=>x.id===state.author));return}
- main.innerHTML=state.tab==="Home"?home():state.tab==="Library"?library():state.tab==="Authors"?authorsPage():state.tab==="Courses"?coursesPage():state.tab==="Journey"?journey():state.tab==="Quick Read"?quickRead():state.tab==="Sources"?sourcesPage():state.tab==="Journal"?journalPage():state.tab==="Profile"?profile():`<section class="hero compact"><h2>${esc(state.tab)}</h2></section><section class="grid top-gap">${LESSONS.filter(l=>l.school===state.tab).map(legacyCard).join("")}</section>`
+ main.innerHTML=state.tab==="Home"?home():state.tab==="Library"?library():state.tab==="Authors"?authorsPage():state.tab==="Courses"?coursesPage():state.tab==="Ideas"?ideasPage():state.tab==="Notebook"?notebookPage():state.tab==="Journey"?journey():state.tab==="Quick Read"?quickRead():state.tab==="Sources"?sourcesPage():state.tab==="Journal"?journalPage():state.tab==="Profile"?profile():`<section class="hero compact"><h2>${esc(state.tab)}</h2></section><section class="grid top-gap">${LESSONS.filter(l=>l.school===state.tab).map(legacyCard).join("")}</section>`
 }
 const hash=decodeURIComponent(location.hash.slice(1));
 if(hash.startsWith("courseLesson=")){state.courseLesson=hash.split("=")[1]}

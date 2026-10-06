@@ -1,4 +1,4 @@
-# Primoria Platform V7
+# Primoria Platform V7.2
 
 V7 is a platform-first release built on the verified V6 course content.
 
@@ -20,4 +20,8 @@ V7 is a platform-first release built on the verified V6 course content.
 ## Deploy
 Upload the extracted files and folders to the root of the Primoria GitHub repository, commit to `main`, and let GitHub Pages deploy from `main / (root)`.
 
-After deployment, a hard refresh should show `Primoria Platform V7` in the footer.
+After deployment, a hard refresh should show `Primoria Platform V7.2` in the footer.
+
+
+## V7.2 study layer
+Highlights, paragraph notes, saved passages, Notebook, and curated idea connections are now included.
